@@ -71,5 +71,37 @@ module Docs
       doc.at_css('table > tbody > .stable:last-of-type > td > a').content.strip
     end
 
+# ------------------------------------------------------------------------------
+# Fallback: PHP 8.4 DOM namespaced classes are NOT included in the downloadable
+# documentation archive, so we fetch them manually from php.net if missing.
+# ------------------------------------------------------------------------------
+
+def download_missing_dom_classes
+  missing_dom_classes = %w(
+    class.dom-node.html
+    class.dom-element.html
+    class.dom-document.html
+    class.dom-htmldocument.html
+    class.dom-xmldocument.html
+    class.dom-text.html
+    class.dom-nodelist.html
+    class.dom-tokenlist.html
+  )
+
+  missing_dom_classes.each do |page|
+    next if path_exists?(page)
+
+    puts "Fetching missing PHP 8.4 DOM page: #{page}"
+    download(page)
+  end
+end
+
+# Call fallback after normal downloads
+def scrape
+  super
+  download_missing_dom_classes
+end
+
+
   end
 end
